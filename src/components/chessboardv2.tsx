@@ -14,8 +14,6 @@ const Chessboard: React.FC = () => {
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
 
   //const gamestore = new GameStore(); 
- const newvar=0;
-  //новый коммент
 
   // Initialize pieces
   useEffect(() => {
