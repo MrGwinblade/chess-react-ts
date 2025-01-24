@@ -15,6 +15,8 @@ const Chessboard: React.FC = () => {
 
   //const gamestore = new GameStore(); 
  //testing commits
+
+ //testing req
   // Initialize pieces
   useEffect(() => {
     const initialPieces: ChessPiece[] = []
