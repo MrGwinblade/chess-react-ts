@@ -13,10 +13,10 @@ const Chessboard: React.FC = () => {
   const [pieces, setPieces] = useState<ChessPiece[]>([])
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null)
 
-  //const gamestore = new GameStore(); 
- //testing commits
+  //const gamestore = new GameStore();
 
- //testing req
+  
+
   // Initialize pieces
   useEffect(() => {
     const initialPieces: ChessPiece[] = []
