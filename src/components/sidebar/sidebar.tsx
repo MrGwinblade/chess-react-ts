@@ -13,10 +13,23 @@ import {
   Users,
   Settings2,
   HelpCircle,
+  Home
 } from "lucide-react"
+import { Link } from "react-router-dom" // Добавляем импорт
+
+
+import { Modal } from "../modal/Modal"
+import { LoginForm } from "../modal/LoginForm"
 
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalContent, setModalContent] = useState<"login" | "register">("login")
+
+  const openModal = (content: "login" | "register") => {
+    setModalContent(content)
+    setIsModalOpen(true)
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,24 +48,42 @@ export function Sidebar() {
   return (
     <aside
       className={`
-        relative flex flex-col h-screen bg-[#312e2b] border-r border-white/10
-        transition-all duration-300 ease-in-out
+        relative flex flex-col h-screen bg-[#1b1a18] border-r border-white/10
+        transition-all duration-0 ease-in-out
         ${isExpanded ? "w-64" : "w-16"}
       `}
     >
       {/* Auth Section */}
       <div className="p-4 border-b border-white/10">
         {isExpanded ? (
+          <Link 
+            to="/" 
+            className="w-full flex items-center px-4 py-2 text-white hover:bg-white/20 rounded-lg mb-2 transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            My-react-Chess
+          </Link>
+        ) : (
+          <Link 
+            to="/" 
+            className="w-full flex items-center justify-center py-2 px-0 text-white hover:bg-white/20 rounded-lg transition-colors"
+          >
+            <Home className="w-5 h-5" />
+          </Link>
+        )}
+      </div>
+      <div id="LoginSection" className="p-4 border-b border-white/10">
+        {isExpanded ? (
           <>
-            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg mb-2">
+            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg mb-2" onClick={() => openModal("login")}>
               Login
             </button>
-            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg">
+            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg" onClick={() => openModal("register")}>
               Register
             </button>
           </>
         ) : (
-          <button className="w-full flex items-center justify-center p-2 text-white bg-white/10 hover:bg-white/20 rounded-lg">
+          <button className="w-full flex items-center justify-center py-2 px-0 text-white bg-white/10 hover:bg-white/20 rounded-lg">
             <Users className="w-5 h-5" />
           </button>
         )}
@@ -101,8 +132,13 @@ export function Sidebar() {
           )}
         </button>
       </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <LoginForm isRegister={modalContent === "register"} />
+      </Modal>
     </aside>
+    
   )
+  
 }
 
 interface SidebarButtonProps {
@@ -113,9 +149,22 @@ interface SidebarButtonProps {
 
 function SidebarButton({ icon, children, isCollapsed }: SidebarButtonProps) {
   return (
-    <button className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-white/10 transition-colors rounded-lg mb-2">
-      <span className="w-5 h-5">{icon}</span>
-      {!isCollapsed && <span className="text-sm">{children}</span>}
+    <button className={`
+      w-full flex items-center 
+      ${isCollapsed ? 'px-0 justify-center' : 'px-4 justify-start'} 
+      py-2 text-white hover:bg-white/20 
+      transition-all duration-0 ease-in-out 
+      rounded-lg mb-2
+      group
+    `}>
+      <span className={`${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'} flex-shrink-0`}>
+        {icon}
+      </span>
+      {!isCollapsed && (
+        <span className="text-sm ml-3 opacity-100 transition-opacity">
+          {children}
+        </span>
+      )}
     </button>
   )
 }
