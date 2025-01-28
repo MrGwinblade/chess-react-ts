@@ -16,15 +16,22 @@ import {
   Home
 } from "lucide-react"
 import { Link } from "react-router-dom" // Добавляем импорт
-
-
+import { observer } from "mobx-react-lite"
+import { useStore } from "../../hooks/useStore"
+import { logout } from "../../Services/api"
 import { Modal } from "../modal/Modal"
 import { LoginForm } from "../modal/LoginForm"
 
-export function Sidebar() {
+export const Sidebar = observer(() => {
+  const { authStore } = useStore()
   const [isExpanded, setIsExpanded] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState<"login" | "register">("login")
+
+  const handleLogout = async () => {
+    //await logout()
+    authStore.logout()
+  }
 
   const openModal = (content: "login" | "register") => {
     setModalContent(content)
@@ -72,22 +79,47 @@ export function Sidebar() {
           </Link>
         )}
       </div>
+
+
       <div id="LoginSection" className="p-4 border-b border-white/10">
-        {isExpanded ? (
-          <>
-            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg mb-2" onClick={() => openModal("login")}>
-              Login
+        {authStore.isAuthenticated ? (
+          isExpanded ? (
+            <div className="flex flex-col">
+              <span className="text-white mb-2">{authStore.userData?.username}</span>
+              <button
+                className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              className="w-full flex items-center justify-center py-2 px-0 text-white bg-white/10 hover:bg-white/20 rounded-lg"
+              onClick={handleLogout}
+            >
+              <Users className="w-5 h-5" />
             </button>
-            <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg" onClick={() => openModal("register")}>
-              Register
-            </button>
-          </>
+          )
         ) : (
-          <button className="w-full flex items-center justify-center py-2 px-0 text-white bg-white/10 hover:bg-white/20 rounded-lg">
-            <Users className="w-5 h-5" />
-          </button>
+          isExpanded ? (
+            <>
+              <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg mb-2" onClick={() => openModal('login')}>
+                Login
+              </button>
+              <button className="w-full text-left px-4 py-2 text-white bg-white/10 hover:bg-white/20 rounded-lg" onClick={() => openModal('register')}>
+                Register
+              </button>
+            </>
+          ) : (
+            <button className="w-full flex items-center justify-center py-2 px-0 text-white bg-white/10 hover:bg-white/20 rounded-lg" onClick={() => openModal('login')}>
+              <Users className="w-5 h-5" />
+            </button>
+          )
         )}
       </div>
+
+
 
       {/* Main Navigation */}
       <nav className="flex-1 p-4">
@@ -132,14 +164,18 @@ export function Sidebar() {
           )}
         </button>
       </div>
+
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <LoginForm isRegister={modalContent === "register"} />
+        <LoginForm isRegister={modalContent === 'register'} onClose={() => setIsModalOpen(false)} />
       </Modal>
+      
     </aside>
+
     
   )
   
-}
+})
+
 
 interface SidebarButtonProps {
   icon: React.ReactNode

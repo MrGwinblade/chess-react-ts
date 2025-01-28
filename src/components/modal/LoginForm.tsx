@@ -1,58 +1,84 @@
+import type React from "react"
 import { useState } from "react"
+import { observer } from "mobx-react-lite"
+import { useStore } from "../../hooks/useStore"
+import { register, login } from "../../Services/api"
 
-export function LoginForm({ isRegister = false }) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [status, setStatus] = useState("")
-
-  const validateEmail = () => {
-    // Add your email validation logic here
-    if (email === "test@example.com" && password === "password") {
-      setStatus("Login successful!")
-    } else {
-      setStatus("Invalid email or password.")
-    }
+interface LoginFormProps {
+    isRegister: boolean
+    onClose: () => void
   }
-
-  return (
-    <div className="w-full max-w-[600px]">
-      <h1 className="text-3xl font-semibold text-gray-200 mb-4">{isRegister ? "Create an Account" : "Welcome Back"}</h1>
-      <p className="font-medium text-lg text-gray-200 mb-6">
-        {isRegister ? "Sign up to get started!" : "Welcome back! Please enter your details."}
-      </p>
-      <div className="flex flex-col gap-y-4">
+  
+  export const LoginForm: React.FC<LoginFormProps> = observer(({ isRegister, onClose }) => {
+    const { authStore } = useStore()
+    const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+  
+    const validateEmail = (email: string) => {
+      const regex = /^[^\s@]+@[^\s@]+\.(com|net|org)$/
+      return regex.test(email)
+    }
+  
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault()
+      setError("")
+  
+      if (!validateEmail(email)) {
+        setError("Invalid email format. Please use a valid email address.")
+        return
+      }
+  
+      try {
+        if (isRegister) {
+          await register(username, email, password)
+          setError("Registration successful. Please log in.")
+        } else {
+          const data = await login(email, password)
+          console.log("Token: "+ data)
+          authStore.login(data)
+          onClose()
+        }
+      } catch (error) {
+        setError((error as Error).message || "An error occurred. Please try again.")
+        console.log
+      }
+    }
+  
+    return (
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-2xl font-bold text-white mb-4">{isRegister ? "Register" : "Login"}</h2>
+        {isRegister && (
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            required
+            className="w-full p-2 bg-gray-700 rounded text-white"
+          />
+        )}
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="p-4 bg-gray-800 rounded-xl text-white focus:outline-none"
+          required
+          className="w-full p-2 bg-gray-700 rounded text-white"
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="p-4 bg-gray-800 rounded-xl text-white focus:outline-none"
+          required
+          className="w-full p-2 bg-gray-700 rounded text-white"
         />
-      </div>
-      <div className="mt-8 flex flex-col gap-y-4">
-        <button
-          onClick={validateEmail}
-          className="active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01] ease-in-out transform py-4 bg-violet-500 rounded-xl text-white font-bold text-lg"
-        >
-          {isRegister ? "Sign up" : "Sign in"}
+        {error && <p className="text-red-500">{error}</p>}
+        <button type="submit" className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          {isRegister ? "Register" : "Login"}
         </button>
-        <button className="py-4 bg-gray-800 rounded-xl text-white font-bold text-lg">Sign in with Google</button>
-      </div>
-      <div className="mt-8 flex justify-center items-center">
-        <p className="font-medium text-base text-gray-200">
-          {isRegister ? "Already have an account?" : "Don't have an account?"}
-        </p>
-        <button className="ml-2 font-medium text-base text-violet-500">{isRegister ? "Sign in" : "Sign up"}</button>
-      </div>
-      {status && <p className="mt-4 text-red-500">{status}</p>}
-    </div>
-  )
-}
-
+      </form>
+    )
+  })
