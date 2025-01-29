@@ -28,6 +28,15 @@ export class GameStore {
     this.initializeBoard()
   }
 
+  resetGame() {
+    this.board = []
+    this.currentTurn = "white"
+    this.selectedCell = null
+    this.promotionPending = null
+    this.lastMove = null
+    this.initializeBoard()
+  }
+
   private notifyTurnCompleted() {
     this.notificationService.notifyTurnCompleted(this.board, this.currentTurn);
   }

@@ -9,7 +9,8 @@ import rootStore from "./Stores/RootStore"
 import { Provider } from "mobx-react"
 
 
-const gameStore = new GameStore(new ConsoleNotificationService())
+const notificationService = new ConsoleNotificationService()
+const gameStore = new GameStore(notificationService)
 
 function App() {
   
@@ -17,7 +18,7 @@ function App() {
     <Provider {...rootStore}>
     <BrowserRouter>
       <div className="flex min-h-screen bg-[#312e2b]">
-      <Sidebar />
+      <Sidebar gameStore={gameStore} />
       <div className="flex-1 flex items-center justify-center p-4">
       <ChessBoard gameStore={gameStore} size={720} />
       </div>

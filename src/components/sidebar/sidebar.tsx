@@ -21,12 +21,23 @@ import { useStore } from "../../hooks/useStore"
 import { logout } from "../../Services/api"
 import { Modal } from "../modal/Modal"
 import { LoginForm } from "../modal/LoginForm"
+import type { GameStore } from "../../Stores/GameStore"
 
-export const Sidebar = observer(() => {
+interface SidebarProps {
+  gameStore: GameStore
+}
+
+
+
+export const Sidebar = observer(({ gameStore }: SidebarProps) => {
   const { authStore } = useStore()
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState<"login" | "register">("login")
+
+  const handlePlayClick = () => {
+    gameStore.resetGame()
+  }
 
   const handleLogout = async () => {
     //await logout()
@@ -123,23 +134,23 @@ export const Sidebar = observer(() => {
 
       {/* Main Navigation */}
       <nav className="flex-1 p-4">
-        <SidebarButton icon={<DiamondIcon />} isCollapsed={!isExpanded}>
+        <SidebarButton icon={<DiamondIcon />} isCollapsed={!isExpanded} onClick={handlePlayClick}>
           Play
         </SidebarButton>
         <SidebarButton icon={<Target />} isCollapsed={!isExpanded}>
-          Puzzles
+          Puzzles (template)
         </SidebarButton>
         <SidebarButton icon={<BookOpenIcon />} isCollapsed={!isExpanded}>
-          Learn
+          Learn (template)
         </SidebarButton>
         <SidebarButton icon={<Eye />} isCollapsed={!isExpanded}>
-          Watch
+          Watch (template)
         </SidebarButton>
         <SidebarButton icon={<Newspaper />} isCollapsed={!isExpanded}>
-          News
+          News (template)
         </SidebarButton>
         <SidebarButton icon={<Users />} isCollapsed={!isExpanded}>
-          Social
+          Social (template)
         </SidebarButton>
       </nav>
 
@@ -168,6 +179,8 @@ export const Sidebar = observer(() => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <LoginForm isRegister={modalContent === 'register'} onClose={() => setIsModalOpen(false)} />
       </Modal>
+
+      
       
     </aside>
 
@@ -181,26 +194,25 @@ interface SidebarButtonProps {
   icon: React.ReactNode
   children: React.ReactNode
   isCollapsed: boolean
+  onClick?: () => void
 }
 
-function SidebarButton({ icon, children, isCollapsed }: SidebarButtonProps) {
+
+function SidebarButton({ icon, children, isCollapsed, onClick }: SidebarButtonProps) {
   return (
-    <button className={`
-      w-full flex items-center 
-      ${isCollapsed ? 'px-0 justify-center' : 'px-4 justify-start'} 
-      py-2 text-white hover:bg-white/20 
-      transition-all duration-0 ease-in-out 
-      rounded-lg mb-2
-      group
-    `}>
-      <span className={`${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'} flex-shrink-0`}>
-        {icon}
-      </span>
-      {!isCollapsed && (
-        <span className="text-sm ml-3 opacity-100 transition-opacity">
-          {children}
-        </span>
-      )}
+    <button
+      className={`
+        w-full flex items-center 
+        ${isCollapsed ? "px-0 justify-center" : "px-4 justify-start"} 
+        py-2 text-white hover:bg-white/20 
+        transition-all duration-0 ease-in-out 
+        rounded-lg mb-2
+        group
+      `}
+      onClick={onClick}
+    >
+      {icon}
+      <span className={`${isCollapsed ? "hidden" : "ml-4"}`}>{children}</span>
     </button>
   )
 }
