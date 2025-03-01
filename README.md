@@ -18,3 +18,5 @@ Future updates:
 - Web sever implimantations for online game
 - More features...
 
+Временно заброшено. Логика фигур готова на 85+-%. 
+
